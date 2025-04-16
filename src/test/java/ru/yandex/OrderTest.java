@@ -12,6 +12,8 @@ import org.openqa.selenium.firefox.FirefoxDriver;
 import ru.yandex.prakticum.MainPageScooter;
 import ru.yandex.prakticum.OrderPageScooter;
 
+import java.time.Duration;
+
 import static org.junit.Assert.assertTrue;
 
 
@@ -50,60 +52,51 @@ public class OrderTest {
         WebDriverManager.chromedriver().setup();
         driver = new ChromeDriver();
 
-        //WebDriverManager.firefoxdriver().setup();
+       //WebDriverManager.firefoxdriver().setup();
         //driver = new FirefoxDriver();
 
-        driver.get("https://qa-scooter.praktikum-services.ru/");
+
+        // Установка неявного ожидания
+        driver.manage().timeouts().implicitlyWait(Duration.ofSeconds(10));
+        // Разворачиваем окно браузера на весь экран
+        driver.manage().window().maximize();
+
+        driver.get(MainPageScooter.URL); // Используем константу URL из MainPageScooter
         OrderPageScooter orderPageScooter = new OrderPageScooter(driver);
-        orderPageScooter.clickButtonCookie();
+        MainPageScooter mainPageScooter = new MainPageScooter(driver);
+        mainPageScooter.clickButtonCookie();
 
     }
 
     @Test
-    public void orderButtonOneTest() throws InterruptedException {
+    public void orderButtonTopTest() throws InterruptedException {
         OrderPageScooter orderPageScooter = new OrderPageScooter(driver);
-        orderPageScooter.clickButtonOrderOne();
-        orderPageScooter.enterNameField(firstName);
-        orderPageScooter.enterLastNameField(lastName);
-        orderPageScooter.enterAddressField(address);
-        orderPageScooter.clickMetroField();
-        orderPageScooter.enterMetroStation(metroStation);
-        orderPageScooter.clickMetroStation();
-        orderPageScooter.enterPhoneField(phoneNumber);
-        orderPageScooter.clickButtonNext();
-        orderPageScooter.enterDataOrderField(deliveryDate);
-        orderPageScooter.clickDeliveryDate();
-        orderPageScooter.clickRentalField();
-        orderPageScooter.enterRentalOption();
-        orderPageScooter.enterColourOption();
-        orderPageScooter.enterComment(comment);
-        orderPageScooter.clickFinishButton();
+        MainPageScooter mainPageScooter = new MainPageScooter(driver);
+        mainPageScooter.clickButtonOrderTop();
+
+        //выполняем заполнение формы первой страницы
+        orderPageScooter.fillOrderFormPageOne(firstName, lastName, address, metroStation, phoneNumber);
+        //выполняем заполнение формы второй страницы
+        orderPageScooter.fillOrderFormPageTwo(deliveryDate, comment);
+
         orderPageScooter.clickButtonYes();
-        Thread.sleep(2000);  // Пауза 2 секунды
+
         assertTrue(orderPageScooter.checkOrderCompleted());
     }
 
     @Test
-    public void orderButtonTwoTest() throws InterruptedException {
+    public void orderButtonBottomTest() throws InterruptedException {
         OrderPageScooter orderPageScooter = new OrderPageScooter(driver);
-        orderPageScooter.clickButtonOrderTwo();
-        orderPageScooter.enterNameField(firstName);
-        orderPageScooter.enterLastNameField(lastName);
-        orderPageScooter.enterAddressField(address);
-        orderPageScooter.clickMetroField();
-        orderPageScooter.enterMetroStation(metroStation);
-        orderPageScooter.clickMetroStation();
-        orderPageScooter.enterPhoneField(phoneNumber);
-        orderPageScooter.clickButtonNext();
-        orderPageScooter.enterDataOrderField(deliveryDate);
-        orderPageScooter.clickDeliveryDate();
-        orderPageScooter.clickRentalField();
-        orderPageScooter.enterRentalOption();
-        orderPageScooter.enterColourOption();
-        orderPageScooter.enterComment(comment);
-        orderPageScooter.clickFinishButton();
+        MainPageScooter mainPageScooter = new MainPageScooter(driver);
+        mainPageScooter.clickButtonOrderBottom();
+
+        //выполняем заполнение формы первой страницы
+        orderPageScooter.fillOrderFormPageOne(firstName, lastName, address, metroStation, phoneNumber);
+        //выполняем заполнение формы второй страницы
+        orderPageScooter.fillOrderFormPageTwo(deliveryDate, comment);
+
         orderPageScooter.clickButtonYes();
-        Thread.sleep(2000);  // Пауза 2 секунды
+
         assertTrue(orderPageScooter.checkOrderCompleted());
     }
 

@@ -1,22 +1,21 @@
 package ru.yandex.prakticum;
 
 import org.openqa.selenium.*;
+import org.openqa.selenium.support.ui.ExpectedConditions;
+import org.openqa.selenium.support.ui.WebDriverWait;
+
+import java.time.Duration;
 
 public class OrderPageScooter {
     private final WebDriver driver;
+    private final WebDriverWait wait;
 
     public OrderPageScooter(WebDriver driver) {
+
         this.driver = driver;
+        this.wait = new WebDriverWait(driver, Duration.ofSeconds(10));
     }
 
-    //Кнопка подтверждения куки локатор
-    private static final By cookieButton = By.id("rcc-confirm-button");
-
-    //Кнопка ЗаказатьОдин
-    private static final By orderButtonOne = By.className("Button_Button__ra12g");
-
-    //Кнопка заказатьДва
-    private static final By orderButtonTwo = By.xpath("(//button[contains(@class, 'Button_Button__ra12g') and contains(text(), 'Заказать')])[2]");
 
     //Поле ввода имени
     private static final By nameField = By.xpath("//input[@placeholder='* Имя']");
@@ -69,20 +68,7 @@ public class OrderPageScooter {
     private static final By orderCompletedText = By.xpath(".//div[contains(@class, 'Order_ModalHeader__3FDaJ')]");
 
 
-    //метод для клика по кнопке подтверждения куки
-    public void clickButtonCookie() {
-        driver.findElement(cookieButton).click();
-    }
 
-    //Открываем страницу заказа через кнопку Заказать1
-    public void clickButtonOrderOne(){
-        driver.findElement(orderButtonOne).click();
-    }
-
-    //Открываем страницу заказа через кнопку Заказать2
-    public void clickButtonOrderTwo(){
-        driver.findElement(orderButtonTwo).click();
-    }
     //заполняем поле имя
     public void enterNameField(String text){
         driver.findElement(nameField).sendKeys(text);
@@ -114,7 +100,19 @@ public class OrderPageScooter {
 
     //Клик по кнопке далее
     public void clickButtonNext(){
-        driver.findElement(nextButton).click();
+        wait.until(ExpectedConditions.elementToBeClickable(nextButton)).click();
+    }
+
+    //Объединение методов заполнения 1 страницы формы
+    public void fillOrderFormPageOne(String firstName, String lastName, String address, String metroStation, String phoneNumber){
+        enterNameField(firstName);
+        enterLastNameField(lastName);
+        enterAddressField(address);
+        clickMetroField();
+        enterMetroStation(metroStation);
+        clickMetroStation();
+        enterPhoneField(phoneNumber);
+        clickButtonNext();
     }
 
     //заполняем поле ввода даты заказа
@@ -144,20 +142,32 @@ public class OrderPageScooter {
 
     //нажимаем нижнюю кнопку заказать на 2 странице формы
     public void clickFinishButton(){
-        driver.findElement(finishOrderButton).click();
+        wait.until(ExpectedConditions.elementToBeClickable(finishOrderButton)).click();
     }
+
+    //Объединение методов заполнения 2 страницы формы
+    public void fillOrderFormPageTwo(String deliveryDate, String comment){
+        enterDataOrderField(deliveryDate);
+        clickDeliveryDate();
+        clickRentalField();
+        enterRentalOption();
+        enterColourOption();
+        enterComment(comment);
+        clickFinishButton();
+    }
+
+
     //подтверждаем оформление заказа клкнув на кнопку Да
     public void clickButtonYes() {
-        driver.findElement(buttonYes).click();
+        wait.until(ExpectedConditions.elementToBeClickable(buttonYes)).click();
     }
 
     //Метод для проверки появления окна с оформленным заказом
     public boolean checkOrderCompleted() {
         try {
-            WebElement modal = driver.findElement(orderCompletedBlock);
-            return modal.isDisplayed() &&
-                    modal.findElement(orderCompletedText).getText().contains("Заказ оформлен");
-        } catch (NoSuchElementException | StaleElementReferenceException e) {
+            WebElement modal = wait.until(ExpectedConditions.visibilityOfElementLocated(orderCompletedBlock));
+            return modal.findElement(orderCompletedText).getText().contains("Заказ оформлен");
+        } catch (TimeoutException e) {
             return false;
         }
     }
